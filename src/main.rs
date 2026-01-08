@@ -38,7 +38,7 @@ use sha2::{Digest, Sha256};
 struct Args {
     /// Path to the dictionary file containing valid words (one per line).
     /// The solver automatically detects the word length from the first valid line.
-    #[arg(short, long, default_value = "words.txt")]
+    #[arg(short, long, default_value = "solutions.txt")]
     word_list: String,
 
     /// Force a rebuild of the optimization cache.
