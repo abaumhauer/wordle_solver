@@ -6,28 +6,51 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Stops previous runs if you push a new commit quickly. Saves CI minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test-and-coverage:
+    name: Test, Lint & Cover
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    
-    # Install the latest stable Rust toolchain (matches your Edition 2024 needs)
-    - name: Install Rust
-      uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v4
 
-    - name: Check Formatting
-      run: cargo fmt -- --check
+      # BEST PRACTICE: The gold standard action for installing Rust
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
 
-    - name: Clippy (Linting)
-      run: cargo clippy -- -D warnings
+      # BEST PRACTICE: Smart caching for Rust (Massive speedup)
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
 
-    - name: Run Tests
-      run: cargo test --verbose
+      # BEST PRACTICE: Download pre-built binary instead of compiling tarpaulin (Saves ~5 mins)
+      - name: Install cargo-tarpaulin
+        uses: taiki-e/install-action@cargo-tarpaulin
 
-    - name: Build Release
-      run: cargo build --release --verbose
+      # 1. Formatting (Fastest check first)
+      - name: Check Formatting
+        run: cargo fmt -- --check
+
+      # 2. Linting (Catch common bugs)
+      - name: Lint with Clippy
+        run: cargo clippy -- -D warnings
+
+      # 3. Test & Coverage
+      - name: Run Tests & Generate Coverage
+        run: cargo tarpaulin --out Xml
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./cobertura.xml
+          fail_ci_if_error: true
