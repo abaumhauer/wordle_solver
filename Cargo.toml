@@ -4,6 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rayon = "1.11"        # Parallel processing (Crucial for speed)
-term_size = "0.3"    # Detects terminal window width
-colored = "2.2"      # Adds colors to output (Green/Yellow)
+# No heavy dependencies yet for the core logic phase
