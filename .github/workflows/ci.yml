@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    # Install the latest stable Rust toolchain (matches your Edition 2024 needs)
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Check Formatting
+      run: cargo fmt -- --check
+
+    - name: Clippy (Linting)
+      run: cargo clippy -- -D warnings
+
+    - name: Run Tests
+      run: cargo test --verbose
+
+    - name: Build Release
+      run: cargo build --release --verbose
