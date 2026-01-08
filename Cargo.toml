@@ -2,13 +2,23 @@
 name = "wordle_solver"
 version = "0.2.0"
 edition = "2024"
+rust-version = "1.85"  # Enforces the compiler version supporting Edition 2024
+authors = ["Andrew Baumhauer <8030834+abaumhauer@users.noreply.github.com>"]
 
 [dependencies]
-rayon = "1.11"           # Parallel processing
-term_size = "0.3"       # Terminal sizing
-colored = "2.2"         # Output coloring
+rayon = "1.11"                                     # Parallel processing (Crucial for speed)
+term_size = "0.3"                                  # Terminal sizing
+colored = "2.2.0"                                  # Output coloring
 serde = { version = "1.0", features = ["derive"] } # Serialization framework
-bincode = "1.3"         # Binary format (Fast cache)
-sha2 = "0.10"           # Hashing the dictionary
-hex = "0.4"             # Displaying hash as string
+bincode = "1.3.3"                                  # Binary format (Fast cache)
+sha2 = "0.10"                                      # Hashing the dictionary
+hex = "0.4"                                        # Displaying hash as string
 clap = { version = "4.5", features = ["derive"] }  # CLI Argument parsing
+
+# --- RELEASE PROFILE OPTIMIZATIONS ---
+# These settings ensure the solver runs at maximum speed.
+[profile.release]
+lto = true              # Link Time Optimization: Performs optimizations across all crates
+codegen-units = 1       # Reduces parallel build steps to allow for better optimization
+strip = true            # Removes symbols to drastically reduce binary size
+panic = "abort"         # Removes stack unwinding for a smaller, slightly faster binary
